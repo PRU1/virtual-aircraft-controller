@@ -1,9 +1,23 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import os
 import shutil
+from fastapi.middleware.cors import CORSMiddleware # something about letting you do something something across backend and frontend when hosted on different ports
+from transcriptutil import generate_transcription
+from audiogeneration import generateAudio
+from instruction import placeholder
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 
 FILE_DIR = "data/" # where to store files
 os.makedirs(FILE_DIR, exist_ok = True) # make sure the directory exists
@@ -13,7 +27,7 @@ def process_file(file_path : str):
 
 # read and process file from directory
 @app.get("/process/{file_name}")
-def process_existing_file(filename : str):
+async def process_existing_file(filename : str):
     file_path = os.path.join(FILE_DIR, filename)
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="file not found")
@@ -32,51 +46,6 @@ async def upload_file(file: UploadFile = File(...)): # async load means if the s
         raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
     
 
-
-'''
-# OLD 
-# Pydantic model to define the structure of a ToDo item
-class ToDoItem(BaseModel):
-    id: int
-    title: str
-    description: str = None
-
-# Simulating an in-memory database with a dictionary
-to_do_list = {}
-
-# CRUD Operations
-
-# Create a new to-do item
-@app.post("/todos/", response_model=ToDoItem)
-def create_todo_item(todo_item: ToDoItem):
-    if todo_item.id in to_do_list:
-        raise HTTPException(status_code=400, detail="To-do item already exists")
-    to_do_list[todo_item.id] = todo_item
-    return todo_item
-
-# Get a single to-do item by ID
-@app.get("/todos/{todo_id}", response_model=ToDoItem)
-def read_todo_item(todo_id: int):
-    if todo_id not in to_do_list:
-        raise HTTPException(status_code=404, detail="To-do item not found")
-    return to_do_list[todo_id]
-
-# Update an existing to-do item
-@app.put("/todos/{todo_id}", response_model=ToDoItem)
-def update_todo_item(todo_id: int, todo_item: ToDoItem):
-    if todo_id not in to_do_list:
-        raise HTTPException(status_code=404, detail="To-do item not found")
-    to_do_list[todo_id] = todo_item
-    return todo_item
-
-# Delete a to-do item
-@app.delete("/todos/{todo_id}")
-def delete_todo_item(todo_id: int):
-    if todo_id not in to_do_list:
-        raise HTTPException(status_code=404, detail="To-do item not found")
-    del to_do_list[todo_id]
-    return {"detail": "To-do item deleted"}
-'''
 from pydantic import BaseModel
 import os
 
@@ -89,7 +58,7 @@ def process_file(file_path : str):
 
 # read and process file from directory
 @app.get("/process/{file_name}")
-def process_existing_file(filename : str):
+async def process_existing_file(filename : str):
     file_path = os.path.join(FILE_DIR, filename)
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="file not found")
@@ -101,50 +70,28 @@ def process_existing_file(filename : str):
 async def upload_file(file: UploadFile = File(...)): # async load means if the server is bogged down, it can handle other requests first.
     file_path = os.path.join(FILE_DIR, file.filename)
     return {"detail": f"file {file.filename} uploaded yippiee"}
-    
 
+@app.post("/generate/")
+async def generate_endpoint():
+    # payload is a dictionary that contains the request data
+    text = generate_transcription("./data/front_end_pilotCommand.wav") # dummy text
+    return text
 
-'''
-# OLD 
-# Pydantic model to define the structure of a ToDo item
-class ToDoItem(BaseModel):
-    id: int
-    title: str
-    description: str = None
+@app.post("/generate-audio/")
+async def generate_audio_endpoint():
+    try:
+        text = placeholder()  
+        if not text:
+            raise HTTPException(status_code=400, detail="Text is required")
+        
+        # Generate audio file
+        generateAudio(text)
+        
+        # Check if file was created
+        if not os.path.exists("output.wav"):
+            raise HTTPException(status_code=500, detail="Audio generation failed")
+            
+        return FileResponse("output.wav", media_type="audio/wav")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-# Simulating an in-memory database with a dictionary
-to_do_list = {}
-
-# CRUD Operations
-
-# Create a new to-do item
-@app.post("/todos/", response_model=ToDoItem)
-def create_todo_item(todo_item: ToDoItem):
-    if todo_item.id in to_do_list:
-        raise HTTPException(status_code=400, detail="To-do item already exists")
-    to_do_list[todo_item.id] = todo_item
-    return todo_item
-
-# Get a single to-do item by ID
-@app.get("/todos/{todo_id}", response_model=ToDoItem)
-def read_todo_item(todo_id: int):
-    if todo_id not in to_do_list:
-        raise HTTPException(status_code=404, detail="To-do item not found")
-    return to_do_list[todo_id]
-
-# Update an existing to-do item
-@app.put("/todos/{todo_id}", response_model=ToDoItem)
-def update_todo_item(todo_id: int, todo_item: ToDoItem):
-    if todo_id not in to_do_list:
-        raise HTTPException(status_code=404, detail="To-do item not found")
-    to_do_list[todo_id] = todo_item
-    return todo_item
-
-# Delete a to-do item
-@app.delete("/todos/{todo_id}")
-def delete_todo_item(todo_id: int):
-    if todo_id not in to_do_list:
-        raise HTTPException(status_code=404, detail="To-do item not found")
-    del to_do_list[todo_id]
-    return {"detail": "To-do item deleted"}
-'''

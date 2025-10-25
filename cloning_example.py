@@ -8,7 +8,7 @@ client = OpenAI(api_key=BOSON_API_KEY, base_url="https://hackathon.boson.ai/v1")
 def b64(path):
     return base64.b64encode(open(path, "rb").read()).decode("utf-8")
 
-reference_path = "./ref-audio/belinda.wav"
+reference_path = "./ref-audio/hogwarts_wand_seller_v2.wav"
 reference_transcript = (
     "I would imagine so. A wand with a dragon heartstring core is capable of dazzling magic. "
     "And the bond between you and your wand should only grow stronger. Do not be surprised at your new "
@@ -34,7 +34,7 @@ resp = client.chat.completions.create(
                 "input_audio": {"data": b64(reference_path), "format": "wav"}
             }],
         },
-        {"role": "user", "content": "[SPEAKER0] Hello chatttttttttttttttttttttttttt. what's up. hello. hello. testing testing 1 2 3. what's up. testingggg. testing."},
+        {"role": "user", "content": "[SPEAKER0]  Hello hello testing"},
     ],
     modalities=["text", "audio"],
     max_completion_tokens=4096,
