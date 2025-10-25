@@ -4,7 +4,7 @@
 ## Prereqs
 Create a virtual environment and install: 
 ```
-pip install streamlit fastapi torch uvicorn
+pip install streamlit fastapi torch uvicorn streamlit-audiorecorder
 ```
 Also install ffmpeg (if Mac, run `brew install ffmpeg`. If on Windows, run the installer). There may be dependencies I'm missing, so install them if they come up please.
 

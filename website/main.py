@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import os
+import shutil
 
 app = FastAPI()
 
 FILE_DIR = "data/" # where to store files
+os.makedirs(FILE_DIR, exist_ok = True) # make sure the directory exists
 
 def process_file(file_path : str):
     return f"the file read is {file_path}"
@@ -23,7 +24,12 @@ def process_existing_file(filename : str):
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)): # async load means if the server is bogged down, it can handle other requests first.
     file_path = os.path.join(FILE_DIR, file.filename)
-    return {"detail": f"file {file.filename} uploaded yippiee"}
+    try:
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return {"detail": f"File '{file.filename}' uploaded successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
     
 
 

@@ -1,34 +1,48 @@
+# chatgpt patch
+# if pyaudioop is not found, use audioop instead
+# run pip install audioop !!
+
+# app.py (very top, before other imports)
+import sys
+
+# Fix for pydub trying to import 'pyaudioop' instead of 'audioop'
+if 'pyaudioop' not in sys.modules:
+    import audioop
+    sys.modules['pyaudioop'] = audioop
+
+# Now your normal imports
+from audiorecorder import audiorecorder
+
 import streamlit as st
 import requests
-import os
+import io
 
 BASE_URL = "http://127.0.0.1:8000"
 
-st.title("yippie hackathon boson higgssssss")
+# load the CSS
+def load_css():
+    with open('styles.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# upload a file
-st.header("Upload file")
-uploaded_file = st.file_uploader("choose an audio file")
-if uploaded_file is not None:
-    st.write(f"selected file: {uploaded_file.name}")
-    if st.button("upload file"):
-        files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
+load_css()
+
+
+st.title("Pilot Speaking")
+
+# record audio in browser
+audio = audiorecorder("Record", "Stop recording")
+
+if len(audio) > 0:
+    # Convert audio to bytes and play it
+    audio_bytes = audio.export().read()
+    st.audio(audio_bytes, format="audio/wav")
+    
+    if st.button("Upload Recorded Audio"):
+        files = {"file": ("pilotCommand.wav", io.BytesIO(audio_bytes), "audio/wav")}
         response = requests.post(f"{BASE_URL}/upload/", files=files)
         if response.status_code == 200:
-            st.success(response.json()["detail"])
+            with open("TESTINGTESTING.wav", "wb") as f:
+                f.write(audio_bytes)
+            st.success(response.json().get("detail"))
         else:
-            st.error(f"Error: {response.text}")
-
-st.header("processing existing file")
-filename = st.text_input("enter filename")
-if st.button("process file"): # create a button that toggles an if block
-    response = requests.get(f"{BASE_URL}/process/{filename}") # call backend endpoint
-    # endpoint - backend application that can be accessed by client applications
-    if response.status_code == 200: # evaluate if a http request was sucessful
-
-        result = response.json() # response from backend is json.
-        st.subheader(f"Results for {result['filename']}") # convert it to python dictionary
-        st.json(result["result"]) # display the result
-
-    else:
-        st.error(f"Error: {response.text}")
+            st.error(f"Upload failed: {response.text}")
