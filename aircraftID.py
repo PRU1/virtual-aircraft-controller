@@ -41,7 +41,7 @@ class aircraft:
                 self.posy = -20
                 self.heading = random.randint(300, 420)
                 self.heading = self.heading % 360
-
+            print(f"{self.fltno}: Toronto tower, {self.fltno} with you at {int(self.altitude)}ft")
         elif status == "DEP": #departure
             self.speed = 0
             self.altitude = 0
@@ -49,6 +49,7 @@ class aircraft:
             self.posy = 0
             self.heading = 237
             self.on_ground = True
+            print(f"{self.fltno}: Toronto tower, {self.fltno} holding short Runway 23")
 
         self.target_alt = self.altitude
         self.target_heading = self.heading
@@ -139,7 +140,7 @@ class aircraft:
                 
                 #departure condition - in air only
                 if self.status == "DEP" and self.altitude >= 4000:
-                    break  #departed and handed off
+                    return  #departed and handed off
                 
                 #check for landing
                 if self.status == "ARR" and self.altitude == 0:
@@ -155,7 +156,7 @@ class aircraft:
                             self.altitude = 30
                             self.on_ground = False #taken off
                 else:
-                    break #landing completed
+                    return #landing completed
             
             #speed control - always
             if not (self.target_speed - 5 < self.speed < self.target_speed + 5):
@@ -174,7 +175,7 @@ class aircraft:
         
 heavy = ["A330", "A350", "A380", "B747", "B767", "B777", "B787", "MD11"]
 
-file = "E:/bosonai/airlines.txt"
+file = "./airlines.txt"
 airline_list = []
 
 
