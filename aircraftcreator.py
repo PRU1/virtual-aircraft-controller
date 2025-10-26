@@ -42,10 +42,16 @@ def send_commands():
                 for n in range(int((len(cmd) - 1)/2)):
                     command = cmd[n * 2 + 1]
                     value = cmd[n * 2 + 2]
-                    if value is int and command in ["alt", "speed", "heading", "clearL", "clearTO"]:
+                    try:
+                        value = int(value)
+                    except:
+                        print("Invalid value")
+                        continue
+                    if command in ["alt", "speed", "heading", "clearL", "clearTO"]:
                         dest.command(command, int(value))
                     else:
-                        print("Invalid command or value")
+                        print("Invalid command")
+                        
             else:
                 print("Callsign not found")     
         else:
