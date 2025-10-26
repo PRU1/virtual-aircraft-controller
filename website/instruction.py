@@ -1,2 +1,2 @@
 def placeholder():
-    return "some random text ai generated placeholder"
+    return "WestJet clear for takeoff!!"
