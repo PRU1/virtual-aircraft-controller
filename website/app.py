@@ -61,7 +61,7 @@ if len(audio) > 0:
         else:
             st.error(f"Upload failed: {response.text}")
 
-display_transcript()
+#display_transcript()
 
 # Add this after your display_transcript() call
 if "generated_audio" not in st.session_state:
