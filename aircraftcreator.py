@@ -23,12 +23,13 @@ for i in planes:
 # --- function to send commands after animation starts ---
 def gen_aircraft():
     while True:
+        time.sleep(15)
         if random.random() < 0.5:
             new_plane = air.gen_aircraft_instance(random.choice(["ARR", "DEP"]))
             planes.append(new_plane)
             planes_dict[new_plane.fltno] = new_plane
             threading.Thread(target=new_plane.run).start()
-            time.sleep(15)
+            
 
 def send_commands():
     while True:
