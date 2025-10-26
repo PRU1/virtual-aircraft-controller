@@ -4,7 +4,6 @@ import random
 import threading
 import tkinter as tk
 from tkinter import ttk
-
 import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
@@ -19,6 +18,8 @@ planes_dict = {}
 planes_lock = threading.Lock()
 for i in planes:
     planes_dict[i.fltno] = i
+
+_threads_started = False
 
 # --- Background plane generator ---
 def gen_aircraft():
@@ -48,15 +49,24 @@ def cleanup_loop():
                     del planes_dict[flt]
         time.sleep(10)
 
-# --- Aircraft run threads ---
-for i in planes:
-    threading.Thread(target=i.run, daemon=True).start()
+# --- Background thread bootstrap ---
+def start_background(start_gui: bool = False):
+    global _threads_started
+    if not _threads_started:
+        for plane in planes:
+            threading.Thread(target=plane.run, daemon=True).start()
+        threading.Thread(target=gen_aircraft, daemon=True).start()
+        threading.Thread(target=cleanup_loop, daemon=True).start()
+        _threads_started = True
+
+    if start_gui:
+        tk_gui()
 
 # --- Tkinter GUI + matplotlib plot ---
 def tk_gui():
+    start_background()
     root = tk.Tk()
     root.title("ATC Simulation & Command Console")
-
     frm = ttk.Frame(root, padding=10)
     frm.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -136,9 +146,5 @@ def tk_gui():
     animate_plot()
     root.mainloop()
 
-# --- Start background threads ---
-threading.Thread(target=gen_aircraft, daemon=True).start()
-threading.Thread(target=cleanup_loop, daemon=True).start()
-
-# --- Start GUI in main thread ---
-tk_gui()
+if __name__ == "__main__":
+    start_background(start_gui=True)
