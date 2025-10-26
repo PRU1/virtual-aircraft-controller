@@ -28,7 +28,7 @@ def animate (frame, planes):
     ax1.set_ylim(-20, 20)
 
     for i in airborne:
-        ax1.annotate(f"{i.fltno}\n{i.type}\n{int(i.altitude)} {int(i.speed)} {i.heading % 360}\n{round(i.posx, 2)} {round(i.posy, 2)}", (i.posx, i.posy), (i.posx + 0.2, i.posy - 0.2), color = "#00FF00")
+        ax1.annotate(f"{i.fltno}\n{i.type}\n{int(i.altitude)} {int(i.speed)} {int(i.heading % 360)}\n{round(i.posx, 2)} {round(i.posy, 2)}", (i.posx, i.posy), (i.posx + 0.2, i.posy - 0.2), color = "#00FF00")
 
 def start_animation(planes):
     anim = animation.FuncAnimation(fig, animate, 1000, fargs = (planes,))

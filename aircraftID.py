@@ -175,7 +175,7 @@ class aircraft:
         
 heavy = ["A330", "A350", "A380", "B747", "B767", "B777", "B787", "MD11"]
 
-file = "E:/bosonai/airlines.txt"
+file = "./airlines.txt"
 airline_list = []
 
 

@@ -34,15 +34,27 @@ def gen_aircraft():
 def send_commands():
     while True:
         instruction = input("Tower: ")
-        callsign, cmd, value = instruction.split()
-        dest = planes_dict.get(callsign)
-        dest.command(cmd, int(value))
+        cmd = instruction.split()
+        if len(cmd) >= 3 and len(cmd) % 2 == 1:
+            callsign = cmd[0]
+            if callsign in planes_dict:
+                dest = planes_dict.get(callsign)
+                for n in range(int((len(cmd) - 1)/2)):
+                    command = cmd[n * 2 + 1]
+                    value = cmd[n * 2 + 2]
+                    if value is int and command in ["alt", "speed", "heading", "clearL", "clearTO"]:
+                        dest.command(command, int(value))
+                    else:
+                        print("Invalid command or value")
+            else:
+                print("Callsign not found")     
+        else:
+            print("Invalid command format")
         time.sleep(1)
 
 def cleanup_loop():
     while True:
         with planes_lock:
-            before = len(planes)
             # Keep only planes that are still active
             planes[:] = [
                 p for p in planes
@@ -57,10 +69,6 @@ def cleanup_loop():
                 p = planes_dict[flt]
                 if (p.status == "ARR" and p.on_ground) or (p.status == "DEP" and p.altitude >= 4000):
                     del planes_dict[flt]
-
-            after = len(planes)
-        if before != after:
-            print(f"Cleaned up {before - after} inactive aircraft")
         time.sleep(10)
 
 
