@@ -134,7 +134,7 @@ class aircraft:
                 #on approach - in air only
                 if self.on_approach and self.clearL and not self.on_ground:
                     self.target_alt = 0
-                    self.vertspeed = self.altitude / (math.sqrt(self.posx ** 2 + self.posy **2) / self.speed)
+                    self.vertspeed = self.altitude / (math.sqrt(self.posx ** 2 + self.posy **2) / (self.speed * 0.0002778))
                     self.target_heading = math.atan(self.posx/self.posy) + 180
                     self.target_speed = 140
                 
@@ -175,7 +175,7 @@ class aircraft:
         
 heavy = ["A330", "A350", "A380", "B747", "B767", "B777", "B787", "MD11"]
 
-file = "./airlines.txt"
+file = "E:/bosonai/airlines.txt"
 airline_list = []
 
 
