@@ -58,6 +58,7 @@ async def process_existing_file(file_name: str):
 
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
+    print("hello world testing uploading")
     """Save uploaded audio, parse for instructions, and apply them.
 
     This saves the upload first (so parsing/reading doesn't consume the UploadFile
@@ -66,6 +67,8 @@ async def upload_file(file: UploadFile = File(...)):
     `aircraftcreator`.
     """
     file_path = os.path.join(FILE_DIR, file.filename)
+    print("file path is:")
+    print(file_path)
 
     # Save uploaded file first
     try:
@@ -81,42 +84,11 @@ async def upload_file(file: UploadFile = File(...)):
 
     # Parse the saved file for instructions
     parse_results = []
-    try:
-        with open(file_path, "rb") as f:
-            parsed = parse_audio(f)
-
-        # Normalize parsed output and apply commands.
-        # parse_audio may return a single string, a list of strings, or a list of tokens.
-        if isinstance(parsed, str):
-            ok, msg = aircraftcreator.process_command_string(parsed)
-            parse_results.append({"instruction": parsed, "ok": ok, "msg": msg})
-        elif isinstance(parsed, list):
-            # If the parser returned a list of tokens (e.g. ['ABC123','alt','5000'])
-            # join them into a single instruction string.
-            if parsed and all(isinstance(x, str) for x in parsed):
-                # Heuristic: if the list looks like a single instruction tokens, join once
-                # If it appears to be multiple instruction strings, attempt to process each.
-                # Detect nested lists by checking types of elements.
-                if any(" " in x for x in parsed):
-                    # elements already contain spaces -> treat each element as an instruction
-                    for item in parsed:
-                        ok, msg = aircraftcreator.process_command_string(item)
-                        parse_results.append({"instruction": item, "ok": ok, "msg": msg})
-                else:
-                    # treat as token list for a single instruction
-                    instr = " ".join(parsed)
-                    ok, msg = aircraftcreator.process_command_string(instr)
-                    parse_results.append({"instruction": instr, "ok": ok, "msg": msg})
-            else:
-                # Unknown structure: represent as string
-                instr = str(parsed)
-                ok, msg = False, "Unrecognized parse format"
-                parse_results.append({"instruction": instr, "ok": ok, "msg": msg})
-        else:
-            parse_results.append({"parsed": str(parsed), "ok": False, "msg": "Unsupported parse result type"})
-    except Exception as exc:
-        # Parsing/applying commands failed, but file was saved successfully.
-        parse_results.append({"error": str(exc)})
+    print(f"attempting to parse uploaded audio file")
+    with open(file_path, "rb") as f:
+        parsed = parse_audio(file_path)
+        print(f"[upload] Parsed instructions: {parsed}")
+        aircraftcreator.send_commands(parsed)
 
     return {"detail": f"File '{file.filename}' uploaded successfully", "parse_results": parse_results}
     

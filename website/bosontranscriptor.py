@@ -42,6 +42,8 @@ def transcribe_audio(audio_path):
         max_completion_tokens=256,
         temperature=0.2,
     )
+    print("TRANSCRIPTION RESULTTTTTTTT")
+    print(response.choices[0].message.content)
 
     return response.choices[0].message.content
 

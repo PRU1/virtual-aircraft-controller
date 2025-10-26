@@ -24,25 +24,31 @@ for i in planes:
     planes_dict[i.fltno] = i
 
 
-def send_command(callsign: str, command: str, value: int) -> tuple[bool, str]:
-    """Send a single validated command to a plane.
+def send_commands(instruction):
+    while True:
+        cmd = instruction
+        if len(cmd) >= 3 and len(cmd) % 2 == 1:
+            callsign = cmd[0]
+            if callsign in planes_dict:
+                dest = planes_dict.get(callsign)
+                for n in range(int((len(cmd) - 1)/2)):
+                    command = cmd[n * 2 + 1]
+                    value = cmd[n * 2 + 2]
+                    try:
+                        value = int(value)
+                    except:
+                        print("Invalid value")
+                        continue
+                    if command in ["alt", "speed", "heading", "clearL", "clearTO"]:
+                        dest.command(command, int(value))
+                    else:
+                        print("Invalid command")
 
-    Returns (True, '') on success or (False, error_message) on failure.
-    This is safe to call from other threads / web handlers.
-    """
-    with planes_lock:
-        dest = planes_dict.get(callsign)
-    if not dest:
-        return False, f"Callsign '{callsign}' not found"
-
-    if command not in ["alt", "speed", "heading", "clearL", "clearTO"]:
-        return False, f"Invalid command: {command}"
-
-    try:
-        dest.command(command, int(value))
-        return True, ""
-    except Exception as exc:
-        return False, f"Error applying command: {exc}"
+            else:
+                print("Callsign not found")
+        else:
+            print("Invalid command format")
+        time.sleep(1)
 
 
 def process_command_string(instruction: str) -> tuple[bool, str]:

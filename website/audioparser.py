@@ -1,4 +1,5 @@
 import bosontranscriptor as bt
+import re
 
 keywords = {
     "climb": "alt",
@@ -14,6 +15,8 @@ keywords = {
 
 numbers = {
     "zero": 0,
+    "oh": 0,   # handle spoken "oh"
+    "o": 0,    # sometimes transcribed as single 'o'
     "one": 1,
     "two": 2,
     "three": 3,
@@ -145,13 +148,16 @@ def extract_instructions(transcript):
             else:
                 i += 1
     
-    if recipient and instructions:
-        return [recipient] + instructions  # Fixed: was using .extend() which returns None
-    else:
-        return None
+    return [recipient] + instructions  # Fixed: was using .extend() which returns None
+
 
 def parse_audio(audio_path):
     transcript = bt.transcribe_audio(audio_path)
-    transcript_words = transcript.lower().split()
-    instructions = extract_instructions(transcript_words)
+    print(f"transcript in parse_audio: {transcript}")
+
+    # Normalize: lowercase and extract only alphabetic tokens (removes commas/punctuation)
+    tokens = re.findall(r"[a-zA-Z]+", transcript.lower())
+    print(f"normalized tokens: {tokens}")
+
+    instructions = extract_instructions(tokens)
     return instructions

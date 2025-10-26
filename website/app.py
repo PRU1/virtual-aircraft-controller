@@ -83,7 +83,6 @@ if len(audio) > 0:
                 st.session_state.busy = False
 
 
-
 ## Add this after your display_transcript() call
 #if "generated_audio" not in st.session_state:
     #st.session_state.generated_audio = None
@@ -93,39 +92,6 @@ if "busy" not in st.session_state:
     st.session_state.busy = False
 if "refresh_enabled" not in st.session_state:
     st.session_state.refresh_enabled = True
-
-#if st.button("Generate Audio"):
-    #with st.spinner("Generating audio..."):
-        #try:
-            #response = requests.post(
-                #f"{BASE_URL}/generate-audio/",
-                #json={},
-                #timeout=90
-            #)
-            #if response.status_code == 200:
-                ## Store audio bytes in session state
-                #st.session_state.generated_audio = response.content
-                
-                ## Create autoplay audio element
-                #b64_audio = base64.b64encode(response.content).decode()
-                #audio_html = f'''
-                    #<audio autoplay controls>
-                        #<source src="data:audio/wav;base64,{b64_audio}" type="audio/wav">
-                    #</audio>
-                #'''
-                ##st.markdown(audio_html, unsafe_allow_html=True)
-                #st.success("Audio generated successfully!")
-            #else:
-                #st.error(f"Error: {response.json().get('detail', 'Unknown error')}")
-        #except Exception as e:
-            #st.error(f"Failed to generate audio: {str(e)}")
-
-## Show regular audio player if we have generated audio
-#if st.session_state.generated_audio is not None:
-    #st.audio(st.session_state.generated_audio, format="audio/wav")
-
-#st.image("./current_plot.png", use_column_width=True)
-
 
 # Auto-refresh only when not busy with another task
 if st.session_state.refresh_enabled and not st.session_state.busy:
