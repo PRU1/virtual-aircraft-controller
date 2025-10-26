@@ -18,11 +18,6 @@ class aircraft:
         self.vertspeed = 30
         self.type = type
 
-        if self.type in heavy:
-            self.appspeed = 160
-        else:
-            self.appspeed = 140
-
         if status == "ARR": #arrival
             self.speed = 240
             self.altitude = random.randint(4, 8) * 1000
@@ -140,12 +135,11 @@ class aircraft:
                 if self.on_approach and self.clearL and not self.on_ground:
                     self.target_alt = 0
                     self.vertspeed = self.altitude / (math.sqrt(self.posx ** 2 + self.posy **2) / (self.speed * 0.0002778))
-                    self.target_heading = math.degrees(math.atan(self.posx/self.posy)) + 180
-                    self.target_speed = self.appspeed
+                    self.target_heading = math.atan(self.posx/self.posy) + 180
+                    self.target_speed = 140
                 
                 #departure condition - in air only
                 if self.status == "DEP" and self.altitude >= 4000:
-                    print(f"{self.fltno}: Contact departure 128.8, {self.fltno}")
                     return  #departed and handed off
                 
                 #check for landing
@@ -162,7 +156,6 @@ class aircraft:
                             self.altitude = 30
                             self.on_ground = False #taken off
                 else:
-                    print(f"{self.fltno}: Contact ground 119.1, {self.fltno}")
                     return #landing completed
             
             #speed control - always
