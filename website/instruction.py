@@ -1,3 +1,2 @@
-def placeholder(scraped):
-    # scraped is a string containing the info we need
+def placeholder():
     return "something"

@@ -42,7 +42,7 @@ response = client.chat.completions.create(
         },
         {
             "role": "user",
-            "content": "Should we fly or land the plane?",
+            "content": "print the audio word for word",
         },
     ],
     max_completion_tokens=256,

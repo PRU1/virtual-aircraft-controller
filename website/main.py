@@ -7,7 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware # something about letting you
 from transcriptutil import generate_transcription
 from audiogeneration import generateAudio
 from instruction import placeholder
-from infoscraper import scrapeinfo
 
 app = FastAPI()
 
@@ -80,10 +79,8 @@ async def generate_endpoint():
 
 @app.post("/generate-audio/")
 async def generate_audio_endpoint():
-    # infoscraper
-    scraped = scrapeinfo("./data/front_end_pilotCommand.wav")
     try:
-        text = placeholder(scraped)  
+        text = placeholder()  
         if not text:
             raise HTTPException(status_code=400, detail="Text is required")
         
